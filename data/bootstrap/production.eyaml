@@ -1,0 +1,13 @@
+---
+classes:
+  - openvox_server
+openvox_server::openvox_majorversion: 8
+openvox_server::openvox_agent_environment: 'production'
+openvox_server::dns_alt_names:
+  - "%{facts.networking.hostname}"
+  - "openvox"
+  - "openvox.%{facts.networking.domain}"
+openvox_server::codemanagement::sources:
+  - source_name: 'example_repo'
+    remote_path: 'git@github.com:Brownserve-UK/openvox_hiera_example.git'
+openvox_server::install_openvoxdb: false

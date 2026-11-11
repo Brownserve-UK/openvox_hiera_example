@@ -1,0 +1,4 @@
+ext-modules
+.bundle/
+Gemfile.lock
+keys/private_key.pkcs7.pem

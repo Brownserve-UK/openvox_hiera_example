@@ -1,0 +1,42 @@
+---
+# This file configures hiera.
+# Hiera allows you to store data/parameter values that may needed when you configure your nodes
+
+# The version of hiera to use
+version: 5
+
+# Set defaults
+defaults:
+  datadir: .
+  data_hash: yaml_data
+
+# This sets the hierarchy for looking up data.
+# As per hiera merging - higher stuff on the list overwrites the lower if keys share the same name.
+hierarchy:
+    # Prefer eyaml - it's good to use encryption where we can.
+    - name: "Per-node secrets (eyaml)"
+      lookup_key: eyaml_lookup_key # eyaml (encrypted yaml) backend
+      options:
+          pkcs7_private_key: /etc/puppetlabs/puppet/keys/private_key.pkcs7.pem
+          pkcs7_public_key:  /etc/puppetlabs/puppet/keys/public_key.pkcs7.pem
+      paths:
+      # This order ensures that eyaml files that are meant for individual nodes trump more generic configurations
+      # I believe this to be a sensible order but you may wish to edit this if it doesn't work for your needs
+          - "data/%{trusted.certname}.eyaml"
+          - "data/services/%{trusted.extensions.pp_service}/%{trusted.extensions.pp_environment}/%{trusted.extensions.pp_role}/%{trusted.certname}.eyaml"
+          - "data/services/%{trusted.extensions.pp_service}/%{trusted.extensions.pp_environment}/%{trusted.certname}.eyaml"
+          - "data/services/%{trusted.extensions.pp_service}/%{trusted.extensions.pp_environment}/%{trusted.extensions.pp_role}.eyaml"
+          - "data/services/%{trusted.extensions.pp_service}/%{trusted.extensions.pp_environment}/common.eyaml"
+          - "data/services/%{trusted.extensions.pp_service}/%{trusted.extensions.pp_role}.eyaml"
+          - "data/services/%{trusted.extensions.pp_service}/common.eyaml"
+    # Allow common data to specified in either yaml or encrypted yaml
+    - name: "Common data (yaml version)"
+      paths:
+          - "data/common/production.yaml"
+    - name: "Common secrets (eyaml)"
+      lookup_key: eyaml_lookup_key
+      options:
+          pkcs7_private_key: /etc/puppetlabs/puppet/keys/private_key.pkcs7.pem
+          pkcs7_public_key:  /etc/puppetlabs/puppet/keys/public_key.pkcs7.pem
+      paths:
+          - "data/common/production.eyaml"

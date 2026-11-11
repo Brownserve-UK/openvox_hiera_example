@@ -1,0 +1,15 @@
+# The location to use for storing cached Git repos
+:cachedir: '/var/cache/r10k'
+
+# A list of git repositories to create
+:sources:
+  # This will clone the git repository and instantiate an environment per
+  # branch in /etc/puppetlabs/code/environments
+<% @sources.each do |source| -%>
+  :<%= source['source_name'] %>:
+    remote: '<%= source['remote_path'] %>'
+    basedir: '/etc/puppetlabs/code/environments'
+<% end -%>
+# Generate types afterwards so we can bypass this issue: https://tickets.puppetlabs.com/browse/MODULES-10808
+deploy:
+  generate_types: true
