@@ -1,0 +1,3 @@
+---
+# Here we set the base_directory parameter from the example_module module, this only applies to Linux machines
+example_module::params::base_directory: '/example_module'

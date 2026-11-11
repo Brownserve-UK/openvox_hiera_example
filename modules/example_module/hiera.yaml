@@ -1,0 +1,12 @@
+---
+# Hiera module layer configuration
+version: 5
+defaults:
+  datadir: data
+  data_hash: yaml_data
+
+hierarchy:
+  - name: "Module default data"
+    paths:
+        - "common.yaml"
+        - "%{facts.kernel}.yaml"

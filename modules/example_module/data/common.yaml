@@ -1,0 +1,2 @@
+---
+example_module::params::file_name: 'hello_world.txt'

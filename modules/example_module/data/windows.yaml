@@ -1,0 +1,5 @@
+---
+# Here we set the base_directory parameter from the example_module module, this only applies to Windows machines
+example_module::params::base_directory: 'C:/example_module'
+# Here we override the file_content for Windows based machines only
+example_module::params::file_content: 'Hello, world! My text was overridden by hiera!'

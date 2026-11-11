@@ -1,0 +1,8 @@
+---
+classes:
+  - common
+  - openvox_server
+common::manage_puppet: false
+openvox_server::codemanagement::sources:
+  - source_name: 'example_repo'
+    remote_path: 'git@github.com:Brownserve-UK/openvox_hiera_example.git'

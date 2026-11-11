@@ -1,0 +1,16 @@
+forge 'https://forgeapi.puppet.com'
+moduledir './ext-modules'
+
+mod 'theforeman-puppet', '23.1.0'
+mod 'puppet-openvoxdb', '9.3.0'
+mod 'puppet-hiera', '7.0.0'
+mod 'puppetlabs-firewall', '8.6.0'
+
+mod 'puppetlabs-postgresql', '10.8.0'
+mod 'puppetlabs-puppetserver_gem', '1.1.1'
+mod 'puppetlabs-stdlib', '9.7.0'
+mod 'puppetlabs-concat', '10.1.0'
+mod 'puppetlabs-inifile', '6.6.0'
+mod 'puppet-extlib', '8.5.0'
+mod 'puppet-systemd', '11.0.0'
+mod 'puppetlabs-apt', '11.4.1'

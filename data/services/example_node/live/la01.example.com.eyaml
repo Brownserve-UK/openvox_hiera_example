@@ -1,0 +1,2 @@
+---
+example_module::params::file_content: 'Hello, world! My text was overridden by node specific hiera. Neat!'
