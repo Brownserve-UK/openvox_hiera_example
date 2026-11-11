@@ -2,21 +2,18 @@
 
 A simple, working example of an [OpenVox](https://voxpupuli.org/openvox/) control repository that uses Hiera to classify nodes from their trusted certificate extensions.
 
-It's intended as a template: copy it and adapt it to get started with your own configuration.
+It's been designed as a fairly minimal/lightweight repository that can easily be used for testing or as a template to get started with your own configuration.
 
 ## Repository layout
 
 | Path | Purpose |
 | --- | --- |
-| `hiera.yaml` | The full Hiera hierarchy used day to day. |
-| `hiera.bootstrap.yaml` | A cut-down hierarchy, see [Bootstrap hierarchy](#bootstrap-hierarchy). |
+| `hiera.yaml` | The full Hiera hierarchy used by production nodes. |
+| `hiera.bootstrap.yaml` | A cut-down hierarchy used for bootstrapping, see [Bootstrap hierarchy](#bootstrap-hierarchy). |
 | `manifests/site.pp` | Looks up `classes` from Hiera and includes them. |
 | `data/` | Hiera data (`common/`, `services/`, `bootstrap/`). |
-| `modules/openvox_server` | Installs and configures OpenVox Server and, optionally, OpenVoxDB. |
-| `modules/common` | Configuration applied to every node. |
-| `modules/example_module` | A placeholder module showing a typical layout. |
-| `Puppetfile` | Forge module dependencies. |
-| `keys/` | Holds your eyaml public key. |
+| `modules/` | Local modules (e.g. `openvox_server`) |
+| `keys/` | Eyaml encryption. |
 
 ## How it all works
 
@@ -37,21 +34,20 @@ data/services/<pp_service>/<pp_environment>/common.eyaml
 data/services/<pp_service>/common.eyaml
 ```
 
-Each file can set a `classes` array. `manifests/site.pp` runs `lookup('classes', Array[String], 'unique', []).include`, so the classes from every matching level are merged and applied. Class parameters are set in the same files, e.g. `openvox_server::openvox_majorversion: 8`.
-
-In this repo, `pp_service: openvox_server` gets `data/services/openvox_server/common.eyaml` and `pp_service: example_node` gets `data/services/example_node/common.eyaml`. The server's data sets `common::manage_puppet: false`, so the `common` class doesn't manage the agent settings that `openvox_server` already controls.
+Each file can set a `classes` array. `manifests/site.pp` performs a lookup of all defined classes, so the classes from every matching level are merged and applied. Class parameters can be set via the same hiera files.
 
 ## Bootstrap hierarchy
 
 `hiera.yaml` is the hierarchy for normal runs. It relies on trusted facts and per-node data.
+This requires an OpenVox server to already be running to provide the certificate infrastructure, which creates a challenge when bootstrapping a new environment using `puppet apply`
 
-`hiera.bootstrap.yaml` contains only the common data plus `data/bootstrap/production.eyaml`, which classifies the node as `openvox_server` without needing certificate extensions.
+To work around this `hiera.bootstrap.yaml` contains only the bare minimum data required to spin up an `openvox_server` without needing any certificate extensions.
 
-OpenVoxDB is switched off in the bootstrap data (`openvox_server::install_openvoxdb: false`). Its SSL certificates don't exist until after the `puppet apply` stage, so it can't be configured yet. With the default (`true`) the normal hierarchy installs it.
+After the server has been bootstrapped `puppet agent -t` can be run as normal. (See OpenVox Bootstrap scripts for more information)
 
 ## A note on naming
 
-OpenVox is a drop-in replacement for Puppet, so many names are still Puppet-branded. You'll still see the `puppet` command, `puppet.conf`, `/etc/puppetlabs`, the `puppetserver` service and the `puppet` class and modules (such as `theforeman-puppet`) in this repo.
+OpenVox is a drop-in replacement for Puppet, so many names are still Puppet-branded. (e.g. `puppet.conf`).
 
 ## Encrypting secrets with Hiera-eyaml
 
@@ -66,7 +62,7 @@ To generate your own:
 * Two keys should be created in the `keys` directory, `private_key.pkcs7.pem` and `public_key.pkcs7.pem`
 * Copy `private_key.pkcs7.pem` and `public_key.pkcs7.pem` to your OpenVox server
 * Keep a copy of `private_key.pkcs7.pem` somewhere safe (like a password manager)
-* Delete `private_key.pkcs7.pem` from the `keys` directory (don't worry, it is gitignored so you won't commit it by accident)
+* Delete `private_key.pkcs7.pem` from the `keys` directory (don't worry, it is gitignored so you shouldn't commit it by accident)
 
 The location you need to copy the keys to depends on your values for `pkcs7_private_key` and `pkcs7_public_key` in your `hiera.yaml` file. (for this example repo that's `/etc/puppetlabs/puppet/keys`)
 
