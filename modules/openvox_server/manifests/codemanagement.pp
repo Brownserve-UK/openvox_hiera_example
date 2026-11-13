@@ -9,13 +9,15 @@ class openvox_server::codemanagement (
   String $r10k_version = 'present',
 ) {
   $username = 'root'
+  $r10k_bin = '/opt/puppetlabs/puppet/bin/r10k'
 
-  package { 'ruby':
-    ensure => 'present',
-  }
-  -> package { 'r10k':
+  package { 'r10k':
     ensure   => $r10k_version,
-    provider => 'gem',
+    provider => 'puppet_gem',
+  }
+  -> file { '/usr/local/bin/r10k':
+    ensure => link,
+    target => $r10k_bin,
   }
   -> file { '/etc/puppetlabs/r10k':
     ensure => 'directory',
@@ -26,7 +28,7 @@ class openvox_server::codemanagement (
 
   cron { 'r10k deploy environment --modules':
     ensure  => present,
-    command => '/usr/bin/pkill --echo --signal 9 r10k; /usr/local/bin/r10k deploy environment --modules 2>&1 | logger -t "r10k_deploy_environment"',
+    command => "/usr/bin/pkill --echo --signal 9 r10k; ${r10k_bin} deploy environment --modules 2>&1 | logger -t \"r10k_deploy_environment\"",
     user    => $username,
     minute  => '*/15',
     require => File['/etc/puppetlabs/r10k/r10k.yaml'],
